@@ -1,0 +1,19 @@
+[project]
+name = "shop"
+version = "1.0.0"
+description = "A full-stack Quanarch application in Python: a quanar server, a qua, three quans and a React client."
+requires-python = ">=3.12"
+dependencies = []
+
+[dependency-groups]
+dev = ["mypy>=1.18", "watchfiles>=1.0"]
+
+# Every part is its own project; one environment holds them all while you develop.
+[tool.uv.workspace]
+members = ["packages/shop-qua", "quanar", "quans/*"]
+
+[tool.uv.sources]
+shop-qua = { workspace = true }
+
+[tool.mypy]
+strict = true
