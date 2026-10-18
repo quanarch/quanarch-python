@@ -18,7 +18,7 @@ jobs:
           repository: quanarch/quanarch
           ref: dev
           path: .qu
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.0
       - uses: actions/setup-node@v7
         with:
           node-version: 24
