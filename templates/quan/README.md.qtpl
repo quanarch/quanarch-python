@@ -1,0 +1,24 @@
+# [[ .Name ]]
+
+A quan. It cannot run on its own: a quanar loads it, runs it in its own process and does
+its work. Everything it needs from the outside comes through its qua.
+[[ if not .Quas ]]
+> **No qua yet.** Add a qua to the `dev` group with `uv add --dev`, and use its `api` and `db`
+> in `[[ snake .Name ]]`.
+[[ end ]]
+- `[[ snake .Name ]]/__init__.py` asks the quanar to listen: `api.get("/[[ .Name ]]", …)`, `api.post("/[[ .Name ]]", …)`.
+  Every path starts with the quan's name.
+- `[[ snake .Name ]]/handlers.py` take a request and return a response; they only call services.
+- `[[ snake .Name ]]/services.py` hold the quan's rules and use the qua's `db`, naming the table themselves.
+
+```sh
+uv run python build.py --watch    # builds, serves the file on port [[ .Port ]] and announces each new build at /events
+```
+
+The quanar follows `/events`: it loads the quan when the stream opens, reloads it on every
+new build and unmounts it when the stream closes. The quan has no entry point of its own:
+its qua has no core until a quanar plugs one in.
+
+A quan imports only its own package, its quas and a short list of standard modules
+(`json`, `datetime`, `uuid`…). Everything else, a database driver, a file, the network,
+comes from the quanar through the qua.

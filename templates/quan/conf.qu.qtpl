@@ -1,0 +1,6 @@
+quan [[ .Name ]]
+stack [[ .Stack ]]@[[ .StackVersion ]]
+[[ if .Port ]]port [[ .Port ]]
+[[ end ]][[ range .Quas ]]
+qua [[ .Name ]]@[[ .Version ]]
+[[- end ]]

@@ -1,0 +1,20 @@
+"""Take a request, return a response; only call services."""
+[[- if .Quas ]]
+
+from __future__ import annotations
+
+from [[ snake (index .Quas 0).Name ]] import Request, Response
+
+from . import services
+
+
+async def list_items(_req: Request) -> Response:
+    return {"body": await services.list_items()}
+
+
+async def create_item(req: Request) -> Response:
+    # The quan's own rule: only an object can be stored.
+    if not isinstance(req["body"], dict):
+        return {"status": 400, "body": {"error": "the body must be a JSON object"}}
+    return {"status": 201, "body": await services.create_item(req["body"])}
+[[- end ]]

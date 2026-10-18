@@ -1,0 +1,102 @@
+"""Builds the quan into dist/[[ .Name ]].pyz.
+
+    python build.py                     build once
+    python build.py --watch             rebuild on every change, serve the file on port [[ .Port ]], announce each build on /events
+"""
+
+from __future__ import annotations
+
+import io
+import sys
+import threading
+import zipfile
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
+from typing import Any
+
+NAME = "[[ .Name ]]"
+ROOT = Path(__file__).parent
+SOURCE = ROOT / "[[ snake .Name ]]"
+OUT = ROOT / "dist" / f"{NAME}.pyz"
+PORT = int(sys.argv[sys.argv.index("--port") + 1]) if "--port" in sys.argv else [[ .Port ]]
+
+
+def build() -> None:
+    """One zip with the quan's package. Its quas are not in it: the quanar provides them."""
+    OUT.parent.mkdir(exist_ok=True)
+    tmp = OUT.with_suffix(".tmp")
+    with zipfile.ZipFile(tmp, "w", zipfile.ZIP_DEFLATED) as archive:
+        for file in sorted(SOURCE.rglob("*.py")):
+            info = zipfile.ZipInfo(str(file.relative_to(ROOT)), date_time=(1980, 1, 1, 0, 0, 0))
+            archive.writestr(info, file.read_bytes())
+    tmp.replace(OUT)
+    print(f"built {OUT.relative_to(ROOT)} ({OUT.stat().st_size} bytes)")
+
+
+#: Each open /events stream, with the event that releases its thread once the stream is gone.
+listeners: dict[io.BufferedIOBase, threading.Event] = {}
+lock = threading.Lock()
+
+
+def announce() -> None:
+    with lock:
+        for stream, gone in list(listeners.items()):
+            try:
+                stream.write(b"event: change\ndata: {}\n\n")
+                stream.flush()
+            except OSError:
+                del listeners[stream]
+                gone.set()
+
+
+class Handler(BaseHTTPRequestHandler):
+    def do_GET(self) -> None:
+        if self.path == "/events":
+            self.send_response(200)
+            self.send_header("Content-Type", "text/event-stream")
+            self.send_header("Cache-Control", "no-cache")
+            self.end_headers()
+            # Sent at once, so the quanar knows the quan is here.
+            self.wfile.write(b": connected\n\n")
+            self.wfile.flush()
+            gone = threading.Event()
+            with lock:
+                listeners[self.wfile] = gone
+            gone.wait()  # until a write to this stream fails
+            return
+        if self.path == f"/{NAME}.pyz" and OUT.exists():
+            data = OUT.read_bytes()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/zip")
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(data)
+            return
+        self.send_response(404)
+        self.end_headers()
+
+    def log_message(self, format: str, *args: Any) -> None:  # noqa: A002 - quiet
+        pass
+
+
+def watch() -> None:
+    # Only needed while developing; a plain build has no dependencies.
+    from watchfiles import watch as changes
+
+    server = ThreadingHTTPServer(("0.0.0.0", PORT), Handler)
+    server.daemon_threads = True
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    print(f"{NAME} served at http://localhost:{PORT}/{NAME}.pyz, new builds announced at /events")
+    # Blocks until the source changes; no polling.
+    for _ in changes(SOURCE, watch_filter=lambda _change, path: path.endswith(".py")):
+        build()
+        announce()
+
+
+if __name__ == "__main__":
+    build()
+    if "--watch" in sys.argv:
+        try:
+            watch()
+        except KeyboardInterrupt:
+            pass

@@ -1,0 +1,35 @@
+"""[[ if eq .Kind "qmock" ]]Stand-in implementations of the quas, for developing quans: the database is kept in memory.[[ else ]]The quanar's side of each qua: the work behind every call a quan makes.[[ end ]]
+
+A quan's process asks for a capability by name ("<qua>:db.create"); only the quas
+plugged into that quan can be reached. Listening (api.get, api.post…) is set up when
+the quan loads, in quan_process.
+"""
+
+from __future__ import annotations
+
+from collections.abc import Awaitable, Callable
+from typing import Any
+
+from . import db_manager
+
+Capability = Callable[..., Awaitable[Any]]
+
+_DB: dict[str, Capability] = {
+    "db.create": db_manager.create,
+    "db.list": db_manager.list,
+    "db.get": db_manager.get,
+    "db.update": db_manager.update,
+    "db.remove": db_manager.remove,
+}
+
+#: Lines marked "qu:" are where `qu` adds a qua when a new quan brings one.
+QUA_CORES: dict[str, dict[str, Capability]] = {
+[[- range .Quas ]]
+    "[[ .Name ]]": _DB,
+[[- end ]]
+    # qu:qua-cores
+}
+
+
+def plugged(quas: tuple[str, ...]) -> dict[str, Capability]:
+    return {f"{qua}:{name}": fn for qua in quas for name, fn in QUA_CORES.get(qua, {}).items()}

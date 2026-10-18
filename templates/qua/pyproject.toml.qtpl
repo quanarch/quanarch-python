@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "[[ .Name ]]"
+version = "1.0.0"
+description = "The contract between a quanar and its quans. No logic: every call goes to the core the quanar plugs in with init()."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.setuptools.package-data]
+[[ snake .Name ]] = ["py.typed"]

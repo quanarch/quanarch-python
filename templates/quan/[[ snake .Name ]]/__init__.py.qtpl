@@ -1,0 +1,13 @@
+[[ if .Quas -]]
+"""The [[ .Name ]] quan. It serves nothing itself: it asks the quanar to listen for it."""
+
+from [[ snake (index .Quas 0).Name ]] import api
+
+from . import handlers
+from .constants import HOME
+
+api.get(HOME, handlers.list_items)
+api.post(HOME, handlers.create_item)
+[[- else -]]
+"""The [[ .Name ]] quan. No qua yet: a quan reaches the quanar only through a qua. See README.md."""
+[[- end ]]

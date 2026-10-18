@@ -1,0 +1,21 @@
+[project]
+name = "[[ .Name ]]"
+version = "0.1.0"
+description = "[[ if eq .Kind "qmock" ]]A stand-in quanar for developing quans.[[ else ]]The quanar: one server process that loads quans at runtime, runs each in its own process and does their work through the qua.[[ end ]]"
+requires-python = ">=3.12"
+dependencies = [
+    "starlette>=1.9",
+    "uvicorn>=0.54",
+    "httpx>=0.28",
+[[- range .Quas ]]
+    "[[ .Name ]][[ if .Path ]][[ else if .Version ]]>=[[ .Version ]][[ else ]] @ [[ .Dependency ]][[ end ]]",
+[[- end ]]
+]
+[[- $local := false ]][[ range .Quas ]][[ if .Path ]][[ $local = true ]][[ end ]][[ end ]]
+[[- if $local ]]
+
+[tool.uv.sources]
+[[- range .Quas ]][[ if .Path ]]
+[[ .Name ]] = { path = "[[ .Path ]]", editable = true }
+[[- end ]][[ end ]]
+[[- end ]]

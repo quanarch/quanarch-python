@@ -1,0 +1,5 @@
+project [[ .Name ]]
+stack [[ .Stack ]]@[[ .StackVersion ]]
+[[ range .Quas ]]
+qua [[ .Name ]]@[[ .Version ]]
+[[- end ]]

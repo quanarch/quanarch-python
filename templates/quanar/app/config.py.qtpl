@@ -1,0 +1,48 @@
+"""Settings of the [[ .Kind ]] and the quans it loads."""
+
+from __future__ import annotations
+
+import os
+from dataclasses import dataclass, field
+
+
+@dataclass(frozen=True)
+class QuanSource:
+    """Where a quan lives and which quas are plugged into it."""
+
+    name: str
+    url: str
+    #: An event stream that announces a new build with a change event.
+    events: str | None = None
+    #: SHA-256 of the file. When set, a file that does not match never runs.
+    hash: str | None = None
+    quas: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class Settings:
+    port: int = int(os.environ.get("PORT", "[[ or .Port 3000 ]]"))
+    reconnect_seconds: float = float(os.environ.get("RECONNECT_SECONDS", "2"))
+    fetch_timeout_seconds: float = 3.0
+    load_timeout_seconds: float = 5.0
+    request_timeout_seconds: float = float(os.environ.get("REQUEST_TIMEOUT_SECONDS", "10"))
+    #: How long a quan waits for the [[ .Kind ]] to answer one of its calls, such as db.create.
+    call_timeout_seconds: float = float(os.environ.get("CALL_TIMEOUT_SECONDS", "5"))
+    quan_memory_mb: int = 256
+    #: Lines marked "qu:" are where `qu` adds a quan.
+    quan_sources: tuple[QuanSource, ...] = field(
+        default_factory=lambda: (
+[[- range .Quans ]]
+            QuanSource(
+                name="[[ .Name ]]",
+                url="http://localhost:[[ .Port ]]/[[ .Name ]].pyz",
+                events="http://localhost:[[ .Port ]]/events",
+                quas=([[ range $i, $q := $.Quas ]][[ if $i ]], [[ end ]]"[[ $q.Name ]]"[[ end ]][[ if eq (len $.Quas) 1 ]],[[ end ]]),
+            ),
+[[- end ]]
+            # qu:quan-sources
+        )
+    )
+
+
+settings = Settings()
