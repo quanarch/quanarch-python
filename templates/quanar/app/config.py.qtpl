@@ -37,7 +37,7 @@ class Settings:
                 name="[[ .Name ]]",
                 url="http://localhost:[[ .Port ]]/[[ .Name ]].pyz",
                 events="http://localhost:[[ .Port ]]/events",
-                quas=([[ range $i, $q := $.Quas ]][[ if $i ]], [[ end ]]"[[ $q.Name ]]"[[ end ]][[ if eq (len $.Quas) 1 ]],[[ end ]]),
+                quas=([[ range $i, $q := .Quas ]][[ if $i ]], [[ end ]]"[[ $q.Name ]]"[[ end ]][[ if eq (len .Quas) 1 ]],[[ end ]]),
             ),
 [[- end ]]
             # qu:quan-sources

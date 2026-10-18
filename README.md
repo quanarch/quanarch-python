@@ -8,7 +8,7 @@ qu new project shop --lang python --dir . --qua shop-qua --quanar shop-quanar --
 qu new examples shop --lang python --example advanced --dir .
 ```
 
-Needs qu 0.3.5 or later, Python 3.12 or later and [uv](https://docs.astral.sh/uv/); the
+Needs qu 0.3.6 or later, Python 3.12 or later and [uv](https://docs.astral.sh/uv/); the
 advanced example's web client also needs Node.js 24 or later.
 
 ## How Quanarch works in Python
