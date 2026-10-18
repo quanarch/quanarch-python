@@ -1,0 +1,32 @@
+[
+  {
+    "name": "orders",
+    "version": "1.0.0",
+    "url": "http://localhost:4100/quans/orders/1.0.0/orders.pyz",
+    "hash": "80756625146dc8926d67bc3db29c3a5b34b286d1034ec26f3e9e8516ed9f7166",
+    "events": "http://localhost:4100/events/orders",
+    "quas": [
+      "shop-qua"
+    ]
+  },
+  {
+    "name": "products",
+    "version": "1.0.0",
+    "url": "http://localhost:4100/quans/products/1.0.0/products.pyz",
+    "hash": "ade10592aa62d84ccf5f8d12375a0568a908ba0b1e3bd79890caacf332a974b3",
+    "events": "http://localhost:4100/events/products",
+    "quas": [
+      "shop-qua"
+    ]
+  },
+  {
+    "name": "users",
+    "version": "1.0.0",
+    "url": "http://localhost:4100/quans/users/1.0.0/users.pyz",
+    "hash": "d6095a72efafe18ed1000ddbe58b7fbe4d7eadf8c24399cbbf4654893c7c030f",
+    "events": "http://localhost:4100/events/users",
+    "quas": [
+      "shop-qua"
+    ]
+  }
+]

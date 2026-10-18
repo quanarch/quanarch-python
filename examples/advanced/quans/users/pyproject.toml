@@ -1,0 +1,13 @@
+[project]
+name = "users"
+version = "1.0.0"
+description = "A quan of the shop: accounts, roles and sign-in. It declares its models, permissions, apis and events; the quanar runs them."
+requires-python = ">=3.12"
+# Nothing at runtime: the quanar hands the quan its qua.
+dependencies = []
+
+[dependency-groups]
+dev = ["shop-qua"]
+
+[tool.uv.sources]
+shop-qua = { workspace = true }

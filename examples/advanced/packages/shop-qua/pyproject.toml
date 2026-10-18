@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "shop-qua"
+version = "1.0.0"
+description = "The contract between the shop's quanar and its quans: what a quan declares and what it may ask for. No logic."
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.setuptools.package-data]
+shop_qua = ["py.typed"]

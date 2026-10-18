@@ -1,0 +1,14 @@
+[project]
+name = "shop-quanar"
+version = "1.0.0"
+description = "The shop's quanar: one server process. It opens the apis, creates the tables, checks permissions and validations and carries events for the quans it loads."
+requires-python = ">=3.12"
+dependencies = [
+    "starlette>=1.9",
+    "uvicorn>=0.54",
+    "httpx>=0.28",
+    "shop-qua",
+]
+
+[tool.uv.sources]
+shop-qua = { workspace = true }

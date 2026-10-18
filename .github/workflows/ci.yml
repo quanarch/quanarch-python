@@ -19,6 +19,9 @@ jobs:
           ref: dev
           path: .qu
       - uses: astral-sh/setup-uv@v10
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
       - uses: actions/setup-go@v7
         with:
           go-version-file: .qu/go.mod
@@ -58,3 +61,10 @@ jobs:
           (cd quans/billing && uv run python build.py --watch) & sleep 4
           test "$(curl -s -o /dev/null -w '%{http_code}' -X POST localhost:3000/billing -H 'Content-Type: application/json' -d '{"text":"hi"}')" = 201
           curl -sf localhost:3000/billing | grep -q '"text":"hi"'
+      - name: Create the advanced example with qu, type-check every part and build its quans
+        working-directory: ${{ runner.temp }}
+        env:
+          QU_STACK_DIR: ${{ github.workspace }}
+        run: |
+          ./qu new examples shop --lang python --example advanced --dir .
+          cd shop && uv run scripts/check.py && uv run scripts/build.py

@@ -22,6 +22,11 @@ template qmock templates/quanar {
 	start uv run python -m app
 }
 
+example advanced examples/advanced {
+	run uv sync --all-packages
+	run npm install --prefix web
+	start uv run scripts/start.py
+}
 
 # A quan added to the project later is listed in every quanar and qmock,
 # with its event stream and the quas plugged into it.
