@@ -1,0 +1,60 @@
+name: ci
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  project:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
+        with:
+          repository: quanarch/quanarch
+          ref: dev
+          path: .qu
+      - uses: astral-sh/setup-uv@v10
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: .qu/go.mod
+          cache-dependency-path: .qu/go.sum
+      - name: Create a project from this stack and add a quan with a new qua
+        run: go test -C .qu ./internal/create -run TestStackProject -count=1 -v
+        env:
+          QU_E2E_STACK_DIR: ${{ github.workspace }}
+      - name: Build qu
+        run: go build -C .qu -o "$RUNNER_TEMP/qu" ./cmd/qu
+      - name: Type-check every part of a project made by qu
+        working-directory: ${{ runner.temp }}
+        env:
+          QU_STACK_DIR: ${{ github.workspace }}
+        run: |
+          ./qu new project acme --lang python --dir . --qua acme-qua --quanar acme-quanar --quan billing
+          ./qu new qmock qmock --lang python --dir acme --qua acme-qua
+          ./qu new quan invoices --lang python --dir acme --new-qua invoices-qua
+          for qua in acme-qua invoices-qua; do
+            (cd acme/packages/$qua && uv run --with mypy mypy --strict src)
+          done
+          for quan in billing invoices; do
+            (cd acme/quans/$quan && uv run --with mypy mypy --strict $quan build.py && uv run python build.py)
+          done
+          (cd acme/quanar && uv run --with mypy mypy --strict app)
+          (cd acme/qmock && uv run --with mypy mypy --strict app)
+      - name: A quan cannot run without a quanar
+        working-directory: ${{ runner.temp }}/acme/quans/billing
+        run: |
+          if uv run python -c "import sys; sys.path.insert(0, 'dist/billing.pyz'); import billing" 2> err.txt; then echo "the quan ran by itself"; exit 1; fi
+          grep -q "the quanar must call init() first" err.txt
+      - name: The quanar listens for a quan only while the quan is there
+        working-directory: ${{ runner.temp }}/acme
+        run: |
+          (cd quanar && uv run python -m app) & sleep 3
+          test "$(curl -s -o /dev/null -w '%{http_code}' localhost:3000/billing)" = 404
+          (cd quans/billing && uv run python build.py --watch) & sleep 4
+          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST localhost:3000/billing -H 'Content-Type: application/json' -d '{"text":"hi"}')" = 201
+          curl -sf localhost:3000/billing | grep -q '"text":"hi"'

@@ -1,0 +1,24 @@
+[project]
+name = "[[ .Name ]]"
+version = "0.1.0"
+description = "A quan: business logic only. It cannot run by itself; a quanar loads it and listens for it."
+requires-python = ">=3.12"
+# Nothing at runtime: the quanar hands the quan its quas.
+dependencies = []
+
+[dependency-groups]
+# The qua is here only for the editor and type checks; watchfiles only for build.py --watch.
+dev = [
+[[- range .Quas ]]
+    "[[ .Name ]][[ if .Path ]][[ else if .Version ]]>=[[ .Version ]][[ else ]] @ [[ .Dependency ]][[ end ]]",
+[[- end ]]
+    "watchfiles>=1.0",
+]
+[[- $local := false ]][[ range .Quas ]][[ if .Path ]][[ $local = true ]][[ end ]][[ end ]]
+[[- if $local ]]
+
+[tool.uv.sources]
+[[- range .Quas ]][[ if .Path ]]
+[[ .Name ]] = { path = "[[ .Path ]]", editable = true }
+[[- end ]][[ end ]]
+[[- end ]]

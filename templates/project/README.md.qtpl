@@ -1,0 +1,40 @@
+# [[ title .Name ]]
+
+A [Quanarch](https://quanarch.org) project.
+
+```
+[[ .Name ]]/
+├── packages/
+│   └── [[ (index .Quas 0).Name ]]/
+├── quanar/
+└── quans/
+    └── [[ (index .Quans 0).Name ]]/
+```
+
+- `packages/[[ (index .Quas 0).Name ]]`: the qua, the contract between the quanar and its quans
+- `quanar`: the server; it loads the quans, runs each in its own process and does their work
+- `quans/[[ (index .Quans 0).Name ]]`: a quan, business logic the quanar loads
+
+Every part is a [uv](https://docs.astral.sh/uv/) project with its own environment.
+
+## Run
+
+In two terminals:
+
+```sh
+# starts the quanar on port 3000
+cd quanar && uv run python -m app
+
+# builds the quan, serves it on port [[ (index .Quans 0).Port ]] and announces every new build
+cd quans/[[ (index .Quans 0).Name ]] && uv run python build.py --watch
+```
+
+```sh
+curl localhost:3000/[[ (index .Quans 0).Name ]]
+curl -X POST localhost:3000/[[ (index .Quans 0).Name ]] -H 'Content-Type: application/json' -d '{"text":"hello"}'
+curl localhost:3000/quans
+```
+
+The quan serves nothing itself. `api.get("/[[ (index .Quans 0).Name ]]", …)` asks the quanar to listen
+for it, and `await db.create("[[ snake (index .Quans 0).Name ]]", …)` asks the quanar to store a row. Stop the
+quan and the quanar stops listening at once; start it again and it is back.

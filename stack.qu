@@ -1,0 +1,41 @@
+stack python
+version 0.1.0
+title "Python"
+
+template project templates/project
+template qua templates/qua {
+	run uv sync
+}
+template quanar templates/quanar {
+	run uv sync
+	port 3000
+	start uv run python -m app
+}
+template quan templates/quan {
+	run uv sync
+	port 4001
+	start uv run python build.py --watch
+}
+template qmock templates/quanar {
+	run uv sync
+	port 3001
+	start uv run python -m app
+}
+
+
+# A quan added to the project later is listed in every quanar and qmock,
+# with its event stream and the quas plugged into it.
+on quan insert app/config.py "# qu:quan-sources" {
+	line "QuanSource("
+	line "    name=\"[[ .Name ]]\","
+	line "    url=\"http://localhost:[[ .Port ]]/[[ .Name ]].pyz\","
+	line "    events=\"http://localhost:[[ .Port ]]/events\","
+	line "    quas=([[ range $i, $q := .Quas ]][[ if $i ]], [[ end ]]\"[[ $q.Name ]]\"[[ end ]][[ if eq (len .Quas) 1 ]],[[ end ]]),"
+	line "),"
+}
+
+# A qua a quanar or qmock does not have yet is imported by the quan host and given a core.
+on qua insert app/quan_host.py "# qu:qua-imports" "import [[ snake .Name ]]"
+on qua insert app/quan_host.py "# qu:qua-host" "\"[[ .Name ]]\": (\"[[ snake .Name ]]\", lambda: [[ snake .Name ]].init(_Core(\"[[ .Name ]]\"))),"
+on qua insert app/core/qua_core.py "# qu:qua-cores" "\"[[ .Name ]]\": _DB,"
+on qua run uv add [[ with index .Quas 0 ]][[ if .Path ]]--editable [[ .Path ]][[ else if .Version ]][[ .Name ]]>=[[ .Version ]][[ else ]][[ .Dependency ]][[ end ]][[ end ]]

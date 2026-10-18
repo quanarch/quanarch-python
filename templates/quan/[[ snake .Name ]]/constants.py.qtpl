@@ -1,0 +1,7 @@
+QUAN_NAME = "[[ .Name ]]"
+
+#: Every path starts with the quan's name.
+HOME = "/[[ .Name ]]"
+
+#: The quan names its tables; the quanar does not know them in advance.
+TABLE = "[[ snake .Name ]]"

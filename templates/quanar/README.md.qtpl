@@ -1,0 +1,51 @@
+# [[ .Name ]]
+
+[[ if eq .Kind "qmock" -]]
+A qmock: a stand-in quanar for developing quans. It is the quanar template itself; its
+database is kept in memory, so a quan can be tried without the real quanar or a real database.
+[[- else -]]
+A quanar: one server process. It holds no business logic. It loads quans at runtime,
+listens to what they ask it to listen to and does the work they ask for through the qua.
+[[- end ]]
+[[ if not .Quas ]]
+> **No qua yet.** Add a qua with `uv add`, import it and give it a core in `app/quan_host.py`,
+> give it a core in `app/core/qua_core.py`, and list it in a quan's `quas` in `app/config.py`.
+[[ end ]]
+## How a quan arrives
+
+1. `app/config.py` lists each quan: where its file is, its event stream and the quas plugged into it.
+2. The [[ .Kind ]] subscribes to the event stream. When it opens, the `.pyz` file is downloaded into
+   memory and, if the list gives a `hash`, checked; a file that does not match never runs.
+3. The quan runs in its own Python process (`app/quan_host.py`, started with `python -I`), with an
+   empty environment and a memory ceiling. It only gets the quas plugged into it.
+4. `api.get("/notes", …)` in the quan makes the [[ .Kind ]] listen to `GET /notes`; requests are handed to
+   the quan's process. `await db.create("notes", …)` comes back to the [[ .Kind ]]'s `db_manager`.
+5. A `change` event reloads the quan; when the stream closes the quan is unmounted at once.
+
+## Layout
+
+- `app/core`: `api_manager` (who listens to what), `db_manager` (in memory; replace it to use a real
+  database), `http_app`, `quan_loader`, `quan_process`, `event_stream`, `qua_core`, `logger`
+- `app/quan_host.py`: the program each quan's process runs; [[ .Kind ]] code, run on its own
+- `app/services`: `quan_service` (follows the quans), `system_service` (`GET /health`, `GET /quans`)
+
+Lines marked `# qu:` are where `qu` adds quans and quas. Do not delete them; you may move them.
+
+```sh
+uv run python -m app    # starts on port [[ or .Port 3000 ]]
+```
+
+| Variable | Default | |
+|---|---|---|
+| `PORT` | [[ or .Port 3000 ]] | |
+| `RECONNECT_SECONDS` | 2 | wait before knocking on a closed quan again |
+| `REQUEST_TIMEOUT_SECONDS` | 10 | a quan that does not answer in time is stopped |
+| `CALL_TIMEOUT_SECONDS` | 5 | how long a quan waits for the [[ .Kind ]] to answer one of its calls |
+
+## The walls, honestly
+
+The quan's imports are limited by name, and an audit hook refuses files, sockets and new
+processes. Both live inside the same Python interpreter, which offers no real security
+boundary: code that sets out to break the rule can reach further through the objects it is
+given. For quans you do not trust, isolate their processes at the operating system level too
+(a separate user, a container, seccomp).

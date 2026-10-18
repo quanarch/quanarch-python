@@ -1,0 +1,19 @@
+"""The quan's rules. It stores through the qua; the quanar does the work."""
+[[- if .Quas ]]
+
+from __future__ import annotations
+
+from typing import Any
+
+from [[ snake (index .Quas 0).Name ]] import Row, db
+
+from .constants import TABLE
+
+
+async def list_items() -> list[Row]:
+    return await db.list(TABLE)
+
+
+async def create_item(item: dict[str, Any]) -> Row:
+    return await db.create(TABLE, item)
+[[- end ]]

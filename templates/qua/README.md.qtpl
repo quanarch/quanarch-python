@@ -1,0 +1,22 @@
+# [[ .Name ]]
+
+A qua: the contract between a quanar and its quans. It holds no logic.
+
+- `src/[[ snake .Name ]]/types.py`: `QuanarCore`, what the quanar implements: `api` and `db`, as `typing.Protocol`s.
+- `src/[[ snake .Name ]]/state.py`: `init()`, where the quanar plugs its core in, and `get_quanar_core()`.
+- `src/[[ snake .Name ]]/api.py`, `src/[[ snake .Name ]]/db.py`: thin functions the quans call; each one forwards to the core.
+
+The methods are general on purpose. `api.get(path, handler)` asks the quanar to listen
+to a path; `await db.create(table, data)` asks it to store a row. The quan names the path
+and the table, the qua never knows about notes, users or stock.
+
+The quanar and the quans use it from this folder while you develop. To share it with quans
+in other repositories, publish it to a package index:
+
+```sh
+uv build      # dist/[[ snake .Name ]]-1.0.0-py3-none-any.whl
+uv publish    # to PyPI, or to your own index with --publish-url
+```
+
+Adding a capability is a minor version: add it to `QuanarCore`, write the thin function
+next to it and implement it in the quanar.
