@@ -14,7 +14,6 @@ import base64
 import builtins
 import dataclasses
 import importlib.abc
-import importlib.util
 import io
 import itertools
 import json
@@ -179,7 +178,7 @@ class _QuanFinder(importlib.abc.MetaPathFinder, importlib.abc.Loader):
         found = self._source_path(fullname)
         if found is None:
             return None
-        return importlib.util.spec_from_loader(fullname, self, is_package=found[1])
+        return ModuleSpec(fullname, self, is_package=found[1])
 
     def create_module(self, spec: ModuleSpec) -> None:
         return None  # the default module object
